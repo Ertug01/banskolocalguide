@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Bansko Local Guide — Minimalist Field Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-dawn: #FBF3EA;
+      --bg-sand: #F5E9DC;
+      --ink-primary: #1F2924;
+      --ink-muted: #5C6660;
+      --pirin-green: #264E3D;
+      --zarika-coral: #D46F48;
+      --zarika-amber: #E8A455;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(165deg, #FBF3EA 0%, #F7EBDD 52%, #F3E6D8 100%);
+      color: var(--ink-primary);
+      min-height: 100vh;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .glass-card {
+      background: rgba(255, 252, 248, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(226, 207, 188, 0.75);
+      box-shadow: 0 6px 24px -6px rgba(58, 42, 29, 0.06);
+    }
+    .glass-card:hover {
+      border-color: rgba(212, 111, 72, 0.55);
+      box-shadow: 0 10px 28px -6px rgba(58, 42, 29, 0.1);
+    }
+    .cat-pill.active {
+      background-color: var(--pirin-green);
+      color: #FFFFFF;
+      border-color: var(--pirin-green);
+      box-shadow: 0 4px 12px -2px rgba(38, 78, 61, 0.28);
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 240px;
+      max-height: 290px;
+    }
+    @media (min-width: 768px) {
+      .chart-container {
+        height: 265px;
+      }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-[#D46F48] selection:text-white overflow-x-hidden relative">
+  <!-- Chosen Palette: Zarika Dawn & Bansko Pirin Pine (Warm sunlit sand-cream #FBF3EA base, blurred Zarika sunrise coral #D46F48 and golden amber #E8A455 ambient glows, paired with Pirin alpine forest green #264E3D and crisp dark pine typography #1F2924) -->
+  <!-- Application Structure Plan: Designed as an ultra-clean, minimalist mobile-first and desktop-responsive traveler control panel tailored for GitHub Pages hosting. Top sticky bar provides instant trip bookmarking. A compact 4-card Quick Essentials grid surfaces urgent local needs (Taxi Bansko call/copy, Kempinski Fibank ATM, Bake Point closest bakery/mini-market, Happy Market closest supermarket). The core interactive directory features instant search, a thumb-friendly horizontal-scroll category bar on mobile (wrapping cleanly on desktop), and streamlined cards with direct Google Maps links for all 41 verified PDF items. A lightweight bottom overview visualizes category distribution and open-air thermal SPA proximity. -->
+  <!-- Visualization & Content Choices: 1) Interactive Places Directory (HTML/Tailwind + Vanilla JS) -> Organize & Navigate -> Clean glassmorphic cards with verbatim notes and 1-tap Google Maps search links -> Optimized for fast mobile scanning while walking in Bansko. 2) Category Breakdown Bar Chart (Chart.js Canvas) -> Inform -> Displays exact item counts across all categories -> Lightweight visual summary. 3) Open-Air Thermal SPA Distance Chart (Chart.js Canvas) -> Compare -> Compares distance from Bansko to Banya village (Regnum, Izgreva) and Dobrinishte (Alpha Spa & Pool) -> Supports quick afternoon thermal planning. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+  <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+  <div aria-hidden="true" class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+    <div class="absolute -top-24 -right-20 w-80 h-80 sm:w-[460px] sm:h-[460px] rounded-full opacity-35" style="background: radial-gradient(circle, #E88D67 0%, transparent 70%); filter: blur(75px);"></div>
+    <div class="absolute top-36 -left-24 w-72 h-72 sm:w-[420px] sm:h-[420px] rounded-full opacity-30" style="background: radial-gradient(circle, #F0B663 0%, transparent 70%); filter: blur(80px);"></div>
+    <div class="absolute bottom-0 right-1/4 w-80 h-80 sm:w-[500px] sm:h-[500px] rounded-full opacity-20" style="background: radial-gradient(circle, #264E3D 0%, transparent 70%); filter: blur(90px);"></div>
+    <canvas id="ambient-pirin-canvas" class="w-full h-full opacity-55"></canvas>
+  </div>
+
+  <header class="sticky top-0 z-40 bg-[#FBF3EA]/80 backdrop-blur-md border-b border-[#E5D6C5]/80">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D46F48] to-[#E8A455] text-white flex items-center justify-center text-sm shadow-xs shrink-0">☀</span>
+        <div class="truncate">
+          <h1 class="text-sm sm:text-base font-bold tracking-tight text-[#1F2924] truncate">Bansko Local Guide</h1>
+          <p class="text-[11px] text-[#5C6660] truncate">Pirin Mountains • Curated Places &amp; Essentials</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button type="button" id="toggle-saved-btn" class="px-3 py-1.5 rounded-xl border border-[#DFCBB6] bg-white/80 hover:bg-white text-xs font-semibold text-[#1F2924] transition">
+          ★ Saved (<span id="saved-count">0</span>)
+        </button>
+        <a href="#guide-overview" class="hidden sm:inline-flex px-3 py-1.5 rounded-xl bg-[#264E3D]/10 hover:bg-[#264E3D]/15 text-xs font-semibold text-[#264E3D] transition">
+          Overview
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-5 sm:py-8 space-y-7 sm:space-y-9">
+
+    <section aria-label="Quick Daily Essentials" class="space-y-2.5">
+      <div class="flex items-center justify-between px-0.5">
+        <h2 class="text-[11px] font-bold uppercase tracking-widest text-[#5C6660]">Daily Essentials</h2>
+        <span class="text-[11px] font-medium text-[#264E3D]">1-Tap Call &amp; Maps</span>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        <div class="glass-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#D46F48]">Taxi Bansko</span>
+            <div class="text-xs sm:text-sm font-bold text-[#1F2924] mt-1 tracking-tight">+359 895 008 505</div>
+          </div>
+          <div class="flex items-center gap-1.5 mt-3">
+            <a href="tel:+359895008505" class="flex-1 text-center py-2 rounded-xl bg-[#264E3D] hover:bg-[#1E3F31] text-white text-[11px] font-semibold transition">Call</a>
+            <button type="button" id="copy-phone-btn" class="flex-1 py-2 rounded-xl bg-[#F5E9DC] hover:bg-[#EAD9C7] text-[#1F2924] text-[11px] font-semibold transition">Copy</button>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#264E3D]">Closest ATM</span>
+            <div class="text-xs sm:text-sm font-bold text-[#1F2924] mt-1 leading-snug">Fibank at Kempinski</div>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&query=Kempinski+Hotel+Grand+Arena+Bansko" target="_blank" rel="noopener noreferrer" class="mt-3 text-center py-2 px-2 rounded-xl bg-[#F5E9DC] hover:bg-[#264E3D] text-[#1F2924] hover:text-white text-[11px] font-semibold transition">
+            Google Maps ↗
+          </a>
+        </div>
+
+        <div class="glass-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#264E3D]">Closest Bakery</span>
+            <div class="text-xs sm:text-sm font-bold text-[#1F2924] mt-1 leading-snug">Bake Point Bansko</div>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&query=Bake+Point+Bansko" target="_blank" rel="noopener noreferrer" class="mt-3 text-center py-2 px-2 rounded-xl bg-[#F5E9DC] hover:bg-[#264E3D] text-[#1F2924] hover:text-white text-[11px] font-semibold transition">
+            Google Maps ↗
+          </a>
+        </div>
+
+        <div class="glass-card rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-[#264E3D]">Closest Market</span>
+            <div class="text-xs sm:text-sm font-bold text-[#1F2924] mt-1 leading-snug">Happy Market</div>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&query=Happy+Market+Bansko" target="_blank" rel="noopener noreferrer" class="mt-3 text-center py-2 px-2 rounded-xl bg-[#F5E9DC] hover:bg-[#264E3D] text-[#1F2924] hover:text-white text-[11px] font-semibold transition">
+            Google Maps ↗
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Interactive Bansko Directory" class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold tracking-tight text-[#1F2924]">Explore Bansko</h2>
+          <p class="text-xs text-[#5C6660] mt-0.5">Filter by category or search any spot, trail, thermal pool, or cuisine.</p>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input type="text" id="search-input" placeholder="Search places, ski track, SPA..." class="w-full sm:w-64 px-3.5 py-2.5 rounded-xl border border-[#DFCBB6] bg-white/85 text-xs text-[#1F2924] placeholder-[#8A948E] focus:outline-none focus:border-[#264E3D]">
+          <button type="button" id="reset-btn" class="px-3.5 py-2.5 rounded-xl border border-[#DFCBB6] bg-white/75 hover:bg-white text-xs font-semibold text-[#5C6660] transition shrink-0">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div id="category-bar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar sm:flex-wrap pb-1">
+        <button type="button" data-cat="all" class="cat-pill active shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] text-xs font-semibold transition">All (41)</button>
+        <button type="button" data-cat="markets" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Markets (3)</button>
+        <button type="button" data-cat="cafes" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Cafes (6)</button>
+        <button type="button" data-cat="bars" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Bars (3)</button>
+        <button type="button" data-cat="bites" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Bites &amp; Brunch (4)</button>
+        <button type="button" data-cat="restaurants" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Restaurants (5)</button>
+        <button type="button" data-cat="attractions" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Attractions (5)</button>
+        <button type="button" data-cat="hikes" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Hikes &amp; Nature (10)</button>
+        <button type="button" data-cat="spa" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">Thermal SPAs (3)</button>
+        <button type="button" data-cat="practical" class="cat-pill shrink-0 px-3.5 py-2 rounded-xl border border-[#DFCBB6] bg-white/75 text-[#1F2924] text-xs font-semibold transition">ATM &amp; Taxi (2)</button>
+      </div>
+
+      <div class="flex items-center justify-between text-[11px] text-[#5C6660] px-0.5">
+        <span>Showing <strong id="visible-count" class="text-[#1F2924]">41</strong> verified spots</span>
+        <span id="saved-indicator" class="hidden text-[#D46F48] font-semibold">Viewing Saved Shortlist</span>
+      </div>
+
+      <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
+    </section>
+
+    <section id="guide-overview" aria-label="Guide Visual Summary" class="pt-2 space-y-3">
+      <div>
+        <h2 class="text-base sm:text-lg font-bold tracking-tight text-[#1F2924]">At a Glance</h2>
+        <p class="text-xs text-[#5C6660] mt-0.5">Distribution of curated stops and approximate distance to nearby open-air thermal pools.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[#5C6660] mb-3">Guide Categories</h3>
+          <div class="chart-container">
+            <canvas id="categoriesChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-[#5C6660] mb-3">Open-Air Thermal SPAs (km from Bansko)</h3>
+          <div class="chart-container">
+            <canvas id="spaChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-[#E5D6C5]/80 mt-10 py-6">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#5C6660]">
+      <span><strong>Bansko Local Guide</strong> • Zarika &amp; Pirin Dawn Edition</span>
+      <span>Mobile &amp; Desktop Ready • Direct Google Maps Links</span>
+    </div>
+  </footer>
+
+  <script>
+    const places = [
+      { id: 1, name: "Bake Point Bansko", cat: "markets", label: "Mini-Market & Bakery", note: "Closest bakery/mini-market", maps: "Bake Point Bansko, Bulgaria" },
+      { id: 2, name: "Supermarket Fresh Mart", cat: "markets", label: "Supermarket", note: "Mini-markets & daily groceries", maps: "Supermarket Fresh Mart Bansko, Bulgaria" },
+      { id: 3, name: "Happy Market", cat: "markets", label: "Supermarket", note: "Closest supermarket: Happy Market", maps: "Happy Market Bansko, Bulgaria" },
+
+      { id: 4, name: "New Coffee World Bansko", cat: "cafes", label: "Cafe", note: "Coffee shop in Bansko", maps: "New Coffee World Bansko, Bulgaria" },
+      { id: 5, name: "DABOV Specialty Coffee Bansko", cat: "cafes", label: "Specialty Coffee", note: "Specialty coffee roaster & cafe", maps: "DABOV Specialty Coffee Bansko, Bulgaria" },
+      { id: 6, name: "Vanilla coffee shop & bar", cat: "cafes", label: "Cafe & Bar", note: "Vanilla coffee shop & bar - Bansko", maps: "Vanilla coffee shop & bar Bansko, Bulgaria" },
+      { id: 7, name: "Franco", cat: "cafes", label: "Cafe", note: "Local cafe in Bansko", maps: "Franco cafe Bansko, Bulgaria" },
+      { id: 8, name: "Cafe Eliz", cat: "cafes", label: "Cafe & Street Food", note: "Cafe Bar And Street Food Eliz", maps: "Cafe Bar And Street Food Eliz Bansko, Bulgaria" },
+      { id: 9, name: "Sapid Cafe", cat: "cafes", label: "Cafe", note: "Coffee spot in Bansko", maps: "Sapid Cafe Bansko, Bulgaria" },
+
+      { id: 10, name: "E92 Coffee Bar & Food", cat: "bars", label: "Bar & Food", note: "Coffee bar, drinks & food", maps: "E92 Coffee Bar & Food Bansko, Bulgaria" },
+      { id: 11, name: "Pirin 75", cat: "bars", label: "Bar", note: "Local bar in Bansko", maps: "Pirin 75 Bansko, Bulgaria" },
+      { id: 12, name: "Pivoteka Craft Beer Mountain Base", cat: "bars", label: "Craft Beer Bar", note: "Craft beer selection", maps: "Pivoteka Craft Beer Mountain Base Bansko, Bulgaria" },
+
+      { id: 13, name: "75's Tasty", cat: "bites", label: "Tasty Bites", note: "Quick bites & snacks", maps: "75's Tasty Bansko, Bulgaria" },
+      { id: 14, name: "Petit Nicolas (Le Petit Nicolas)", cat: "bites", label: "Tasty Bites", note: "Le Petit Nicolas", maps: "Le Petit Nicolas Bansko, Bulgaria" },
+      { id: 15, name: "Banski Samun", cat: "bites", label: "Artisan Bakery", note: "Artisan bread • Домашен хляб с квас", maps: "Banski Samun Artisan Bakery Bansko, Bulgaria" },
+      { id: 16, name: "Skabrin RestoBar", cat: "bites", label: "Brunch", note: "Brunch & RestoBar", maps: "Skabrin RestoBar Bansko, Bulgaria" },
+
+      { id: 17, name: "Casa di Papi", cat: "restaurants", label: "Italian Restaurant", note: "Italian cuisine", maps: "Casa di Papi Bansko, Bulgaria" },
+      { id: 18, name: "Mehana Dedo Yonkata", cat: "restaurants", label: "Bulgarian Mehana", note: "Traditional Bulgarian cuisine", maps: "Mehana Dedo Yonkata Bansko, Bulgaria" },
+      { id: 19, name: "Five M", cat: "restaurants", label: "International", note: "International • Restaurant & Good Bar", maps: "Five M Restaurant & Good Bar Bansko, Bulgaria" },
+      { id: 20, name: "Motikata", cat: "restaurants", label: "Bulgarian & Int.", note: "Bulgarian and international food", maps: "Motikata Bansko, Bulgaria" },
+      { id: 21, name: "Damyanitza (Дамяница)", cat: "restaurants", label: "Bulgarian & Int.", note: "Bulgarian and international • Bar & Restaurant", maps: "Damyanitsa Bar & Restaurant Bansko, Bulgaria" },
+
+      { id: 22, name: "House Museum Of Nikola Vaptsarov", cat: "attractions", label: "Museum", note: "Historic house museum in Bansko", maps: "House Museum of Nikola Vaptsarov Bansko, Bulgaria" },
+      { id: 23, name: "Bansko Art Gallery (ART IDEA)", cat: "attractions", label: "Art Gallery", note: "Bansko Art Gallery - ART IDEA", maps: "Bansko Art Gallery ART IDEA Bansko, Bulgaria" },
+      { id: 24, name: "Radonova House", cat: "attractions", label: "Ethnographic Museum", note: "Historical and Ethnographic Museum", maps: "Radonova House Historical and Ethnographic Museum Bansko, Bulgaria" },
+      { id: 25, name: "Bansko ATV", cat: "attractions", label: "Rentals", note: "Rental ATVs, e-bikes, e-scooters", maps: "Bansko ATV rental Bansko, Bulgaria" },
+      { id: 26, name: "Off Road Bansko JEEP Safari Tours", cat: "attractions", label: "Off-Road Tours", note: "JEEP Safari Tours", maps: "Off Road Bansko JEEP Safari Tours Bansko, Bulgaria" },
+
+      { id: 27, name: "Bansko Self-Guided Hiking", cat: "hikes", label: "Hiking Routes", note: "Many hikes with different difficulty levels & routes", maps: "Pirin National Park Bansko hiking trails, Bulgaria" },
+      { id: 28, name: "Walk on Ski Track 1 → Kolibata", cat: "hikes", label: "Favorite Walk #1", note: "Reaching non-working restaurant Kolibata (KOLIBATA BAR&GRILL)", maps: "Kolibata Bar & Grill Bansko, Bulgaria" },
+      { id: 29, name: "Walk on Ski Track 2 → Peshterite", cat: "hikes", label: "Favorite Walk #2", note: "Walk 500m more; Peshterite Restaurant might be open", maps: "Peshterite Restaurant Bansko, Bulgaria" },
+      { id: 30, name: "Walk on Ski Track 3 → Banderishka Meadow", cat: "hikes", label: "Favorite Walk #3", note: "Walk to Banderishka Meadow", maps: "Banderishka Meadow Bansko, Bulgaria" },
+      { id: 31, name: "Eco-path Dragostinov Chark", cat: "hikes", label: "Eco-Path", note: "Екопътека „Драгостинов чарк\"", maps: "Eco-path Dragostinov Chark Bansko, Bulgaria" },
+      { id: 32, name: "Small Monastery Paligoden", cat: "hikes", label: "Monastery", note: "Манастира Рождество пресв. Богородица - Палигоден", maps: "Манастир Рождество пресв. Богородица Палигоден Bansko, Bulgaria" },
+      { id: 33, name: "St Nikola Archaeological Site", cat: "hikes", label: "Archaeological Site", note: "St Nikola Church and Archaeological site", maps: "St Nikola Church and Archaeological site Bansko, Bulgaria" },
+      { id: 34, name: "Secret Pool in the River", cat: "hikes", label: "Ice Bath Spot", note: "For ice bath lovers • Skinny Dipping Hole", maps: "Skinny Dipping Hole Bansko, Bulgaria" },
+      { id: 35, name: "Dam Belizmata", cat: "hikes", label: "Dam & Lake", note: "10 BGN entrance fee • Belizmata Dam", maps: "Belizmata Dam Bansko, Bulgaria" },
+      { id: 36, name: "Dam Krinec (Язовир Кринец)", cat: "hikes", label: "Dam & Lake", note: "Язовир Кринец", maps: "Язовир Кринец Bansko, Bulgaria" },
+
+      { id: 37, name: "Regnum in Banya Village", cat: "spa", label: "Open-Air Thermal SPA", note: "Regnum Banya Thermal Hotel", maps: "Regnum Banya Thermal Hotel Banya, Bulgaria" },
+      { id: 38, name: "Izgreva in Banya Village", cat: "spa", label: "Open-Air Thermal SPA", note: "Complex Izgreva", maps: "Complex Izgreva Banya, Bulgaria" },
+      { id: 39, name: "Alpha Spa & Pool Dobrinishte", cat: "spa", label: "Open-Air Thermal SPA", note: "Open-air mineral pool in Dobrinishte", maps: "Alpha Spa & Pool Dobrinishte, Bulgaria" },
+
+      { id: 40, name: "Fibank ATM at Kempinski Hotel", cat: "practical", label: "Closest ATM", note: "Kempinski Hotel Grand Arena Bansko", maps: "Kempinski Hotel Grand Arena Bansko, Bulgaria" },
+      { id: 41, name: "Taxi Bansko", cat: "practical", label: "Local Taxi", note: "Call +359 895 008 505", phone: "+359895008505", maps: "Bansko, Bulgaria" }
+    ];
+
+    let activeCat = "all";
+    let savedOnly = false;
+    const savedSet = new Set();
+
+    function drawAmbientBackdrop() {
+      const canvas = document.getElementById("ambient-pirin-canvas");
+      const ctx = canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, w, h);
+
+      const sunX = w * 0.82;
+      const sunY = h * 0.22;
+      [95, 155, 225].forEach((r, idx) => {
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(212, 111, 72, ${0.14 - idx * 0.035})`;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      });
+
+      ctx.beginPath();
+      ctx.moveTo(0, h * 0.86);
+      ctx.lineTo(w * 0.18, h * 0.68);
+      ctx.lineTo(w * 0.34, h * 0.79);
+      ctx.lineTo(w * 0.56, h * 0.61);
+      ctx.lineTo(w * 0.76, h * 0.76);
+      ctx.lineTo(w * 0.92, h * 0.64);
+      ctx.lineTo(w, h * 0.72);
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(38, 78, 61, 0.045)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(38, 78, 61, 0.12)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+    }
+
+    function renderCards() {
+      const query = document.getElementById("search-input").value.toLowerCase().trim();
+      const grid = document.getElementById("cards-grid");
+
+      const list = places.filter(item => {
+        if (savedOnly && !savedSet.has(item.id)) return false;
+        if (activeCat !== "all" && item.cat !== activeCat) return false;
+        if (query) {
+          const text = `${item.name} ${item.label} ${item.note}`.toLowerCase();
+          if (!text.includes(query)) return false;
+        }
+        return true;
+      });
+
+      document.getElementById("visible-count").textContent = list.length;
+      document.getElementById("saved-count").textContent = savedSet.size;
+
+      const indicator = document.getElementById("saved-indicator");
+      if (savedOnly) {
+        indicator.classList.remove("hidden");
+      } else {
+        indicator.classList.add("hidden");
+      }
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full glass-card rounded-2xl p-8 text-center">
+            <p class="text-sm font-semibold text-[#1F2924]">No matching spots found</p>
+            <p class="text-xs text-[#5C6660] mt-1">Try another keyword or clear your active filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map(item => {
+        const isSaved = savedSet.has(item.id);
+        const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.maps)}`;
+        const actionBtn = item.phone
+          ? `<a href="tel:${item.phone}" class="w-full inline-flex items-center justify-center py-2.5 px-3 rounded-xl bg-[#264E3D] hover:bg-[#1E3F31] text-white text-xs font-semibold transition">Call +359 895 008 505</a>`
+          : `<a href="${mapLink}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center py-2.5 px-3 rounded-xl bg-[#F5E9DC]/90 hover:bg-[#264E3D] text-[#1F2924] hover:text-white text-xs font-semibold transition">Open in Google Maps ↗</a>`;
+
+        return `
+          <article class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition">
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#264E3D] bg-[#264E3D]/10 px-2.5 py-0.5 rounded-lg">
+                  ${item.label}
+                </span>
+                <button type="button" data-id="${item.id}" class="bookmark-btn px-2 py-0.5 rounded-lg text-xs font-semibold border transition ${isSaved ? "bg-[#D46F48] text-white border-[#D46F48]" : "bg-white/70 text-[#5C6660] border-[#DFCBB6] hover:text-[#1F2924]"}">
+                  ${isSaved ? "★" : "☆"}
+                </button>
+              </div>
+              <h3 class="text-sm sm:text-base font-bold text-[#1F2924] mt-2.5 leading-snug">${item.name}</h3>
+              <p class="text-xs text-[#5C6660] mt-1.5 leading-relaxed">${item.note}</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[#E5D6C5]/70">
+              ${actionBtn}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      grid.querySelectorAll(".bookmark-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = Number(btn.dataset.id);
+          if (savedSet.has(id)) savedSet.delete(id);
+          else savedSet.add(id);
+          renderCards();
+        });
+      });
+    }
+
+    document.getElementById("category-bar").addEventListener("click", e => {
+      const btn = e.target.closest("button[data-cat]");
+      if (!btn) return;
+      activeCat = btn.dataset.cat;
+      document.querySelectorAll("#category-bar .cat-pill").forEach(b => {
+        b.classList.remove("active");
+        b.classList.add("bg-white/75", "text-[#1F2924]");
+      });
+      btn.classList.add("active");
+      btn.classList.remove("bg-white/75", "text-[#1F2924]");
+      renderCards();
+    });
+
+    document.getElementById("search-input").addEventListener("input", renderCards);
+
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      activeCat = "all";
+      savedOnly = false;
+      document.getElementById("search-input").value = "";
+      const savedBtn = document.getElementById("toggle-saved-btn");
+      savedBtn.classList.remove("bg-[#D46F48]", "text-white", "border-[#D46F48]");
+      savedBtn.classList.add("bg-white/80", "text-[#1F2924]", "border-[#DFCBB6]");
+      document.querySelectorAll("#category-bar .cat-pill").forEach((b, i) => {
+        if (i === 0) {
+          b.classList.add("active");
+          b.classList.remove("bg-white/75", "text-[#1F2924]");
+        } else {
+          b.classList.remove("active");
+          b.classList.add("bg-white/75", "text-[#1F2924]");
+        }
+      });
+      renderCards();
+    });
+
+    document.getElementById("toggle-saved-btn").addEventListener("click", function () {
+      savedOnly = !savedOnly;
+      if (savedOnly) {
+        this.classList.remove("bg-white/80", "text-[#1F2924]", "border-[#DFCBB6]");
+        this.classList.add("bg-[#D46F48]", "text-white", "border-[#D46F48]");
+      } else {
+        this.classList.add("bg-white/80", "text-[#1F2924]", "border-[#DFCBB6]");
+        this.classList.remove("bg-[#D46F48]", "text-white", "border-[#D46F48]");
+      }
+      renderCards();
+    });
+
+    document.getElementById("copy-phone-btn").addEventListener("click", function () {
+      navigator.clipboard.writeText("+359895008505").then(() => {
+        const orig = this.textContent;
+        this.textContent = "Copied";
+        setTimeout(() => { this.textContent = orig; }, 1600);
+      });
+    });
+
+    function wrapLabel(label, max = 16) {
+      if (label.length <= max) return label;
+      const words = label.split(" ");
+      const out = [];
+      let cur = "";
+      words.forEach(w => {
+        if ((cur + " " + w).trim().length <= max) {
+          cur = (cur + " " + w).trim();
+        } else {
+          if (cur) out.push(cur);
+          cur = w;
+        }
+      });
+      if (cur) out.push(cur);
+      return out;
+    }
+
+    const catNames = ["Hikes & Nature", "Cafes", "Restaurants", "Attractions", "Bites & Brunch", "Markets", "Bars", "Thermal SPAs", "ATM & Taxi"];
+    new Chart(document.getElementById("categoriesChart").getContext("2d"), {
+      type: "bar",
+      data: {
+        labels: catNames.map(n => wrapLabel(n, 16)),
+        datasets: [{
+          label: "Spots",
+          data: [10, 6, 5, 5, 4, 3, 3, 3, 2],
+          backgroundColor: "#264E3D",
+          borderRadius: 6
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { title: items => catNames[items[0].dataIndex] }
+          }
+        },
+        scales: {
+          x: { beginAtZero: true, ticks: { stepSize: 2, font: { size: 11 } }, grid: { color: "rgba(226,207,188,0.45)" } },
+          y: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+
+    const spaNames = ["Regnum (Banya Village)", "Izgreva (Banya Village)", "Alpha Spa & Pool (Dobrinishte)"];
+    new Chart(document.getElementById("spaChart").getContext("2d"), {
+      type: "bar",
+      data: {
+        labels: spaNames.map(n => wrapLabel(n, 16)),
+        datasets: [{
+          label: "Approx. km from Bansko",
+          data: [5, 5.5, 7],
+          backgroundColor: ["#D46F48", "#E8A455", "#264E3D"],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { title: items => spaNames[items[0].dataIndex] }
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 10, ticks: { font: { size: 11 } }, grid: { color: "rgba(226,207,188,0.45)" } },
+          x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+
+    window.addEventListener("resize", drawAmbientBackdrop);
+    drawAmbientBackdrop();
+    renderCards();
+  </script>
+</body>
+</html>
