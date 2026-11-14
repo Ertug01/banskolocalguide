@@ -33,15 +33,15 @@
       scrollbar-width: none;
     }
     .glass-card {
-      background: rgba(255, 252, 248, 0.78);
+      background: rgba(255, 252, 248, 0.84);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(226, 207, 188, 0.75);
+      border: 1px solid rgba(226, 207, 188, 0.78);
       box-shadow: 0 6px 24px -6px rgba(58, 42, 29, 0.06);
     }
     .glass-card:hover {
       border-color: rgba(212, 111, 72, 0.55);
-      box-shadow: 0 10px 28px -6px rgba(58, 42, 29, 0.1);
+      box-shadow: 0 10px 28px -6px rgba(58, 42, 29, 0.11);
     }
     .cat-pill.active {
       background-color: var(--pirin-green);
@@ -67,8 +67,8 @@
 </head>
 <body class="antialiased selection:bg-[#D46F48] selection:text-white overflow-x-hidden relative">
   <!-- Chosen Palette: Zarika Dawn & Bansko Pirin Pine (Warm sunlit sand-cream #FBF3EA base, blurred Zarika sunrise coral #D46F48 and golden amber #E8A455 ambient glows, paired with Pirin alpine forest green #264E3D and crisp dark pine typography #1F2924) -->
-  <!-- Application Structure Plan: Designed as an ultra-clean, minimalist mobile-first and desktop-responsive traveler control panel tailored for GitHub Pages hosting. Top sticky bar provides instant trip bookmarking. A compact 4-card Quick Essentials grid surfaces urgent local needs (Taxi Bansko call/copy, Kempinski Fibank ATM, Bake Point closest bakery/mini-market, Happy Market closest supermarket). The core interactive directory features instant search, a thumb-friendly horizontal-scroll category bar on mobile (wrapping cleanly on desktop), and streamlined cards with direct Google Maps links for all 41 verified PDF items. A lightweight bottom overview visualizes category distribution and open-air thermal SPA proximity. -->
-  <!-- Visualization & Content Choices: 1) Interactive Places Directory (HTML/Tailwind + Vanilla JS) -> Organize & Navigate -> Clean glassmorphic cards with verbatim notes and 1-tap Google Maps search links -> Optimized for fast mobile scanning while walking in Bansko. 2) Category Breakdown Bar Chart (Chart.js Canvas) -> Inform -> Displays exact item counts across all categories -> Lightweight visual summary. 3) Open-Air Thermal SPA Distance Chart (Chart.js Canvas) -> Compare -> Compares distance from Bansko to Banya village (Regnum, Izgreva) and Dobrinishte (Alpha Spa & Pool) -> Supports quick afternoon thermal planning. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+  <!-- Application Structure Plan: Minimalist, responsive control panel built for both local desktop previewing and GitHub Pages hosting. Each of the 41 verified Bansko locations is pre-mapped to a dedicated file inside a relative `photos/` folder with automatic image extension fallback (.jpg, .jpeg, .png, .webp) and a clean Zarika-themed header fallback if a photo has not been added yet, ensuring zero broken images or external API dependencies. -->
+  <!-- Visualization & Content Choices: 1) Interactive Places Directory with Local `photos/` Headers (HTML/Tailwind + Vanilla JS) -> Organize, Visualize & Navigate -> Displays authentic user-curated photos from `photos/` alongside verbatim guide notes and 1-tap Google Maps links. 2) Category Breakdown Bar Chart (Chart.js Canvas) -> Inform -> Summarizes counts across all 9 categories. 3) Open-Air Thermal SPA Distance Chart (Chart.js Canvas) -> Compare -> Compares distances from Bansko to Banya and Dobrinishte thermal pools. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
   <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
   <div aria-hidden="true" class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
@@ -78,7 +78,7 @@
     <canvas id="ambient-pirin-canvas" class="w-full h-full opacity-55"></canvas>
   </div>
 
-  <header class="sticky top-0 z-40 bg-[#FBF3EA]/80 backdrop-blur-md border-b border-[#E5D6C5]/80">
+  <header class="sticky top-0 z-40 bg-[#FBF3EA]/85 backdrop-blur-md border-b border-[#E5D6C5]/80">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2.5 min-w-0">
         <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D46F48] to-[#E8A455] text-white flex items-center justify-center text-sm shadow-xs shrink-0">☀</span>
@@ -184,7 +184,7 @@
         <span id="saved-indicator" class="hidden text-[#D46F48] font-semibold">Viewing Saved Shortlist</span>
       </div>
 
-      <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
+      <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4"></div>
     </section>
 
     <section id="guide-overview" aria-label="Guide Visual Summary" class="pt-2 space-y-3">
@@ -215,66 +215,95 @@
   <footer class="border-t border-[#E5D6C5]/80 mt-10 py-6">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#5C6660]">
       <span><strong>Bansko Local Guide</strong> • Zarika &amp; Pirin Dawn Edition</span>
-      <span>Mobile &amp; Desktop Ready • Direct Google Maps Links</span>
+      <span>Mobile &amp; Desktop Ready • Hosted on GitHub Pages</span>
     </div>
   </footer>
 
   <script>
+    const categoryVisuals = {
+      markets: { icon: "🧺", gradient: "from-[#E9C496] via-[#F2D8B3] to-[#E5B885]" },
+      cafes: { icon: "☕", gradient: "from-[#DF9A78] via-[#EAB796] to-[#F3D2B8]" },
+      bars: { icon: "🍺", gradient: "from-[#D47A54] via-[#E39B74] to-[#EFC19F]" },
+      bites: { icon: "🥐", gradient: "from-[#E8A85C] via-[#F0C284] to-[#F6D9AF]" },
+      restaurants: { icon: "🍲", gradient: "from-[#C96B4B] via-[#DC8B6B] to-[#EBB296]" },
+      attractions: { icon: "🏛️", gradient: "from-[#5A7D6C] via-[#83A192] to-[#B7C9BF]" },
+      hikes: { icon: "🏔️", gradient: "from-[#2D5A47] via-[#4D7B67] to-[#8EB0A0]" },
+      spa: { icon: "♨️", gradient: "from-[#4C847B] via-[#78A8A0] to-[#B2D1CB]" },
+      practical: { icon: "🚕", gradient: "from-[#D46F48] via-[#E4986B] to-[#F0C39E]" }
+    };
+
     const places = [
-      { id: 1, name: "Bake Point Bansko", cat: "markets", label: "Mini-Market & Bakery", note: "Closest bakery/mini-market", maps: "Bake Point Bansko, Bulgaria" },
-      { id: 2, name: "Supermarket Fresh Mart", cat: "markets", label: "Supermarket", note: "Mini-markets & daily groceries", maps: "Supermarket Fresh Mart Bansko, Bulgaria" },
-      { id: 3, name: "Happy Market", cat: "markets", label: "Supermarket", note: "Closest supermarket: Happy Market", maps: "Happy Market Bansko, Bulgaria" },
+      { id: 1, name: "Bake Point Bansko", cat: "markets", label: "Mini-Market & Bakery", note: "Closest bakery/mini-market", maps: "Bake Point Bansko, Bulgaria", photoBase: "photos/01-bake-point" },
+      { id: 2, name: "Supermarket Fresh Mart", cat: "markets", label: "Supermarket", note: "Mini-markets & daily groceries", maps: "Supermarket Fresh Mart Bansko, Bulgaria", photoBase: "photos/02-fresh-mart" },
+      { id: 3, name: "Happy Market", cat: "markets", label: "Supermarket", note: "Closest supermarket: Happy Market", maps: "Happy Market Bansko, Bulgaria", photoBase: "photos/03-happy-market" },
 
-      { id: 4, name: "New Coffee World Bansko", cat: "cafes", label: "Cafe", note: "Coffee shop in Bansko", maps: "New Coffee World Bansko, Bulgaria" },
-      { id: 5, name: "DABOV Specialty Coffee Bansko", cat: "cafes", label: "Specialty Coffee", note: "Specialty coffee roaster & cafe", maps: "DABOV Specialty Coffee Bansko, Bulgaria" },
-      { id: 6, name: "Vanilla coffee shop & bar", cat: "cafes", label: "Cafe & Bar", note: "Vanilla coffee shop & bar - Bansko", maps: "Vanilla coffee shop & bar Bansko, Bulgaria" },
-      { id: 7, name: "Franco", cat: "cafes", label: "Cafe", note: "Local cafe in Bansko", maps: "Franco cafe Bansko, Bulgaria" },
-      { id: 8, name: "Cafe Eliz", cat: "cafes", label: "Cafe & Street Food", note: "Cafe Bar And Street Food Eliz", maps: "Cafe Bar And Street Food Eliz Bansko, Bulgaria" },
-      { id: 9, name: "Sapid Cafe", cat: "cafes", label: "Cafe", note: "Coffee spot in Bansko", maps: "Sapid Cafe Bansko, Bulgaria" },
+      { id: 4, name: "New Coffee World Bansko", cat: "cafes", label: "Cafe", note: "Coffee shop in Bansko", maps: "New Coffee World Bansko, Bulgaria", photoBase: "photos/04-new-coffee-world" },
+      { id: 5, name: "DABOV Specialty Coffee Bansko", cat: "cafes", label: "Specialty Coffee", note: "Specialty coffee roaster & cafe", maps: "DABOV Specialty Coffee Bansko, Bulgaria", photoBase: "photos/05-dabov-coffee" },
+      { id: 6, name: "Vanilla coffee shop & bar", cat: "cafes", label: "Cafe & Bar", note: "Vanilla coffee shop & bar - Bansko", maps: "Vanilla coffee shop & bar Bansko, Bulgaria", photoBase: "photos/06-vanilla-coffee" },
+      { id: 7, name: "Franco", cat: "cafes", label: "Cafe", note: "Local cafe in Bansko", maps: "Franco cafe Bansko, Bulgaria", photoBase: "photos/07-franco-cafe" },
+      { id: 8, name: "Cafe Eliz", cat: "cafes", label: "Cafe & Street Food", note: "Cafe Bar And Street Food Eliz", maps: "Cafe Bar And Street Food Eliz Bansko, Bulgaria", photoBase: "photos/08-cafe-eliz" },
+      { id: 9, name: "Sapid Cafe", cat: "cafes", label: "Cafe", note: "Coffee spot in Bansko", maps: "Sapid Cafe Bansko, Bulgaria", photoBase: "photos/09-sapid-cafe" },
 
-      { id: 10, name: "E92 Coffee Bar & Food", cat: "bars", label: "Bar & Food", note: "Coffee bar, drinks & food", maps: "E92 Coffee Bar & Food Bansko, Bulgaria" },
-      { id: 11, name: "Pirin 75", cat: "bars", label: "Bar", note: "Local bar in Bansko", maps: "Pirin 75 Bansko, Bulgaria" },
-      { id: 12, name: "Pivoteka Craft Beer Mountain Base", cat: "bars", label: "Craft Beer Bar", note: "Craft beer selection", maps: "Pivoteka Craft Beer Mountain Base Bansko, Bulgaria" },
+      { id: 10, name: "E92 Coffee Bar & Food", cat: "bars", label: "Bar & Food", note: "Coffee bar, drinks & food", maps: "E92 Coffee Bar & Food Bansko, Bulgaria", photoBase: "photos/10-e92-coffee-bar" },
+      { id: 11, name: "Pirin 75", cat: "bars", label: "Bar", note: "Local bar in Bansko", maps: "Pirin 75 Bansko, Bulgaria", photoBase: "photos/11-pirin-75" },
+      { id: 12, name: "Pivoteka Craft Beer Mountain Base", cat: "bars", label: "Craft Beer Bar", note: "Craft beer selection", maps: "Pivoteka Craft Beer Mountain Base Bansko, Bulgaria", photoBase: "photos/12-pivoteka" },
 
-      { id: 13, name: "75's Tasty", cat: "bites", label: "Tasty Bites", note: "Quick bites & snacks", maps: "75's Tasty Bansko, Bulgaria" },
-      { id: 14, name: "Petit Nicolas (Le Petit Nicolas)", cat: "bites", label: "Tasty Bites", note: "Le Petit Nicolas", maps: "Le Petit Nicolas Bansko, Bulgaria" },
-      { id: 15, name: "Banski Samun", cat: "bites", label: "Artisan Bakery", note: "Artisan bread • Домашен хляб с квас", maps: "Banski Samun Artisan Bakery Bansko, Bulgaria" },
-      { id: 16, name: "Skabrin RestoBar", cat: "bites", label: "Brunch", note: "Brunch & RestoBar", maps: "Skabrin RestoBar Bansko, Bulgaria" },
+      { id: 13, name: "75's Tasty", cat: "bites", label: "Tasty Bites", note: "Quick bites & snacks", maps: "75's Tasty Bansko, Bulgaria", photoBase: "photos/13-75s-tasty" },
+      { id: 14, name: "Petit Nicolas (Le Petit Nicolas)", cat: "bites", label: "Tasty Bites", note: "Le Petit Nicolas", maps: "Le Petit Nicolas Bansko, Bulgaria", photoBase: "photos/14-petit-nicolas" },
+      { id: 15, name: "Banski Samun", cat: "bites", label: "Artisan Bakery", note: "Artisan bread • Домашен хляб с квас", maps: "Banski Samun Artisan Bakery Bansko, Bulgaria", photoBase: "photos/15-banski-samun" },
+      { id: 16, name: "Skabrin RestoBar", cat: "bites", label: "Brunch", note: "Brunch & RestoBar", maps: "Skabrin RestoBar Bansko, Bulgaria", photoBase: "photos/16-skabrin-restobar" },
 
-      { id: 17, name: "Casa di Papi", cat: "restaurants", label: "Italian Restaurant", note: "Italian cuisine", maps: "Casa di Papi Bansko, Bulgaria" },
-      { id: 18, name: "Mehana Dedo Yonkata", cat: "restaurants", label: "Bulgarian Mehana", note: "Traditional Bulgarian cuisine", maps: "Mehana Dedo Yonkata Bansko, Bulgaria" },
-      { id: 19, name: "Five M", cat: "restaurants", label: "International", note: "International • Restaurant & Good Bar", maps: "Five M Restaurant & Good Bar Bansko, Bulgaria" },
-      { id: 20, name: "Motikata", cat: "restaurants", label: "Bulgarian & Int.", note: "Bulgarian and international food", maps: "Motikata Bansko, Bulgaria" },
-      { id: 21, name: "Damyanitza (Дамяница)", cat: "restaurants", label: "Bulgarian & Int.", note: "Bulgarian and international • Bar & Restaurant", maps: "Damyanitsa Bar & Restaurant Bansko, Bulgaria" },
+      { id: 17, name: "Casa di Papi", cat: "restaurants", label: "Italian Restaurant", note: "Italian cuisine", maps: "Casa di Papi Bansko, Bulgaria", photoBase: "photos/17-casa-di-papi" },
+      { id: 18, name: "Mehana Dedo Yonkata", cat: "restaurants", label: "Bulgarian Mehana", note: "Traditional Bulgarian cuisine", maps: "Mehana Dedo Yonkata Bansko, Bulgaria", photoBase: "photos/18-mehana-dedo-yonkata" },
+      { id: 19, name: "Five M", cat: "restaurants", label: "International", note: "International • Restaurant & Good Bar", maps: "Five M Restaurant & Good Bar Bansko, Bulgaria", photoBase: "photos/19-five-m" },
+      { id: 20, name: "Motikata", cat: "restaurants", label: "Bulgarian & Int.", note: "Bulgarian and international food", maps: "Motikata Bansko, Bulgaria", photoBase: "photos/20-motikata" },
+      { id: 21, name: "Damyanitza (Дамяница)", cat: "restaurants", label: "Bulgarian & Int.", note: "Bulgarian and international • Bar & Restaurant", maps: "Damyanitsa Bar & Restaurant Bansko, Bulgaria", photoBase: "photos/21-damyanitza" },
 
-      { id: 22, name: "House Museum Of Nikola Vaptsarov", cat: "attractions", label: "Museum", note: "Historic house museum in Bansko", maps: "House Museum of Nikola Vaptsarov Bansko, Bulgaria" },
-      { id: 23, name: "Bansko Art Gallery (ART IDEA)", cat: "attractions", label: "Art Gallery", note: "Bansko Art Gallery - ART IDEA", maps: "Bansko Art Gallery ART IDEA Bansko, Bulgaria" },
-      { id: 24, name: "Radonova House", cat: "attractions", label: "Ethnographic Museum", note: "Historical and Ethnographic Museum", maps: "Radonova House Historical and Ethnographic Museum Bansko, Bulgaria" },
-      { id: 25, name: "Bansko ATV", cat: "attractions", label: "Rentals", note: "Rental ATVs, e-bikes, e-scooters", maps: "Bansko ATV rental Bansko, Bulgaria" },
-      { id: 26, name: "Off Road Bansko JEEP Safari Tours", cat: "attractions", label: "Off-Road Tours", note: "JEEP Safari Tours", maps: "Off Road Bansko JEEP Safari Tours Bansko, Bulgaria" },
+      { id: 22, name: "House Museum Of Nikola Vaptsarov", cat: "attractions", label: "Museum", note: "Historic house museum in Bansko", maps: "House Museum of Nikola Vaptsarov Bansko, Bulgaria", photoBase: "photos/22-nikola-vaptsarov-museum" },
+      { id: 23, name: "Bansko Art Gallery (ART IDEA)", cat: "attractions", label: "Art Gallery", note: "Bansko Art Gallery - ART IDEA", maps: "Bansko Art Gallery ART IDEA Bansko, Bulgaria", photoBase: "photos/23-bansko-art-gallery" },
+      { id: 24, name: "Radonova House", cat: "attractions", label: "Ethnographic Museum", note: "Historical and Ethnographic Museum", maps: "Radonova House Historical and Ethnographic Museum Bansko, Bulgaria", photoBase: "photos/24-radonova-house" },
+      { id: 25, name: "Bansko ATV", cat: "attractions", label: "Rentals", note: "Rental ATVs, e-bikes, e-scooters", maps: "Bansko ATV rental Bansko, Bulgaria", photoBase: "photos/25-bansko-atv" },
+      { id: 26, name: "Off Road Bansko JEEP Safari Tours", cat: "attractions", label: "Off-Road Tours", note: "JEEP Safari Tours", maps: "Off Road Bansko JEEP Safari Tours Bansko, Bulgaria", photoBase: "photos/26-off-road-jeep-safari" },
 
-      { id: 27, name: "Bansko Self-Guided Hiking", cat: "hikes", label: "Hiking Routes", note: "Many hikes with different difficulty levels & routes", maps: "Pirin National Park Bansko hiking trails, Bulgaria" },
-      { id: 28, name: "Walk on Ski Track 1 → Kolibata", cat: "hikes", label: "Favorite Walk #1", note: "Reaching non-working restaurant Kolibata (KOLIBATA BAR&GRILL)", maps: "Kolibata Bar & Grill Bansko, Bulgaria" },
-      { id: 29, name: "Walk on Ski Track 2 → Peshterite", cat: "hikes", label: "Favorite Walk #2", note: "Walk 500m more; Peshterite Restaurant might be open", maps: "Peshterite Restaurant Bansko, Bulgaria" },
-      { id: 30, name: "Walk on Ski Track 3 → Banderishka Meadow", cat: "hikes", label: "Favorite Walk #3", note: "Walk to Banderishka Meadow", maps: "Banderishka Meadow Bansko, Bulgaria" },
-      { id: 31, name: "Eco-path Dragostinov Chark", cat: "hikes", label: "Eco-Path", note: "Екопътека „Драгостинов чарк\"", maps: "Eco-path Dragostinov Chark Bansko, Bulgaria" },
-      { id: 32, name: "Small Monastery Paligoden", cat: "hikes", label: "Monastery", note: "Манастира Рождество пресв. Богородица - Палигоден", maps: "Манастир Рождество пресв. Богородица Палигоден Bansko, Bulgaria" },
-      { id: 33, name: "St Nikola Archaeological Site", cat: "hikes", label: "Archaeological Site", note: "St Nikola Church and Archaeological site", maps: "St Nikola Church and Archaeological site Bansko, Bulgaria" },
-      { id: 34, name: "Secret Pool in the River", cat: "hikes", label: "Ice Bath Spot", note: "For ice bath lovers • Skinny Dipping Hole", maps: "Skinny Dipping Hole Bansko, Bulgaria" },
-      { id: 35, name: "Dam Belizmata", cat: "hikes", label: "Dam & Lake", note: "10 BGN entrance fee • Belizmata Dam", maps: "Belizmata Dam Bansko, Bulgaria" },
-      { id: 36, name: "Dam Krinec (Язовир Кринец)", cat: "hikes", label: "Dam & Lake", note: "Язовир Кринец", maps: "Язовир Кринец Bansko, Bulgaria" },
+      { id: 27, name: "Bansko Self-Guided Hiking", cat: "hikes", label: "Hiking Routes", note: "Many hikes with different difficulty levels & routes", maps: "Pirin National Park Bansko hiking trails, Bulgaria", photoBase: "photos/27-self-guided-hiking" },
+      { id: 28, name: "Walk on Ski Track 1 → Kolibata", cat: "hikes", label: "Favorite Walk #1", note: "Reaching non-working restaurant Kolibata (KOLIBATA BAR&GRILL)", maps: "Kolibata Bar & Grill Bansko, Bulgaria", photoBase: "photos/28-ski-track-kolibata" },
+      { id: 29, name: "Walk on Ski Track 2 → Peshterite", cat: "hikes", label: "Favorite Walk #2", note: "Walk 500m more; Peshterite Restaurant might be open", maps: "Peshterite Restaurant Bansko, Bulgaria", photoBase: "photos/29-ski-track-peshterite" },
+      { id: 30, name: "Walk on Ski Track 3 → Banderishka Meadow", cat: "hikes", label: "Favorite Walk #3", note: "Walk to Banderishka Meadow", maps: "Banderishka Meadow Bansko, Bulgaria", photoBase: "photos/30-banderishka-meadow" },
+      { id: 31, name: "Eco-path Dragostinov Chark", cat: "hikes", label: "Eco-Path", note: "Екопътека „Драгостинов чарк\"", maps: "Eco-path Dragostinov Chark Bansko, Bulgaria", photoBase: "photos/31-dragostinov-chark" },
+      { id: 32, name: "Small Monastery Paligoden", cat: "hikes", label: "Monastery", note: "Манастира Рождество пресв. Богородица - Палигоден", maps: "Манастир Рождество пресв. Богородица Палигоден Bansko, Bulgaria", photoBase: "photos/32-paligoden-monastery" },
+      { id: 33, name: "St Nikola Archaeological Site", cat: "hikes", label: "Archaeological Site", note: "St Nikola Church and Archaeological site", maps: "St Nikola Church and Archaeological site Bansko, Bulgaria", photoBase: "photos/33-st-nikola-site" },
+      { id: 34, name: "Secret Pool in the River", cat: "hikes", label: "Ice Bath Spot", note: "For ice bath lovers • Skinny Dipping Hole", maps: "Skinny Dipping Hole Bansko, Bulgaria", photoBase: "photos/34-secret-river-pool" },
+      { id: 35, name: "Dam Belizmata", cat: "hikes", label: "Dam & Lake", note: "10 BGN entrance fee • Belizmata Dam", maps: "Belizmata Dam Bansko, Bulgaria", photoBase: "photos/35-dam-belizmata" },
+      { id: 36, name: "Dam Krinec (Язовир Кринец)", cat: "hikes", label: "Dam & Lake", note: "Язовир Кринец", maps: "Язовир Кринец Bansko, Bulgaria", photoBase: "photos/36-dam-krinec" },
 
-      { id: 37, name: "Regnum in Banya Village", cat: "spa", label: "Open-Air Thermal SPA", note: "Regnum Banya Thermal Hotel", maps: "Regnum Banya Thermal Hotel Banya, Bulgaria" },
-      { id: 38, name: "Izgreva in Banya Village", cat: "spa", label: "Open-Air Thermal SPA", note: "Complex Izgreva", maps: "Complex Izgreva Banya, Bulgaria" },
-      { id: 39, name: "Alpha Spa & Pool Dobrinishte", cat: "spa", label: "Open-Air Thermal SPA", note: "Open-air mineral pool in Dobrinishte", maps: "Alpha Spa & Pool Dobrinishte, Bulgaria" },
+      { id: 37, name: "Regnum in Banya Village", cat: "spa", label: "Open-Air Thermal SPA", note: "Regnum Banya Thermal Hotel", maps: "Regnum Banya Thermal Hotel Banya, Bulgaria", photoBase: "photos/37-regnum-banya" },
+      { id: 38, name: "Izgreva in Banya Village", cat: "spa", label: "Open-Air Thermal SPA", note: "Complex Izgreva", maps: "Complex Izgreva Banya, Bulgaria", photoBase: "photos/38-izgreva-banya" },
+      { id: 39, name: "Alpha Spa & Pool Dobrinishte", cat: "spa", label: "Open-Air Thermal SPA", note: "Open-air mineral pool in Dobrinishte", maps: "Alpha Spa & Pool Dobrinishte, Bulgaria", photoBase: "photos/39-alpha-spa-dobrinishte" },
 
-      { id: 40, name: "Fibank ATM at Kempinski Hotel", cat: "practical", label: "Closest ATM", note: "Kempinski Hotel Grand Arena Bansko", maps: "Kempinski Hotel Grand Arena Bansko, Bulgaria" },
-      { id: 41, name: "Taxi Bansko", cat: "practical", label: "Local Taxi", note: "Call +359 895 008 505", phone: "+359895008505", maps: "Bansko, Bulgaria" }
+      { id: 40, name: "Fibank ATM at Kempinski Hotel", cat: "practical", label: "Closest ATM", note: "Kempinski Hotel Grand Arena Bansko", maps: "Kempinski Hotel Grand Arena Bansko, Bulgaria", photoBase: "photos/40-fibank-kempinski" },
+      { id: 41, name: "Taxi Bansko", cat: "practical", label: "Local Taxi", note: "Call +359 895 008 505", phone: "+359895008505", maps: "Bansko, Bulgaria", photoBase: "photos/41-taxi-bansko" }
     ];
 
     let activeCat = "all";
     let savedOnly = false;
     const savedSet = new Set();
+
+    function handlePhotoFallback(imgEl) {
+      const base = imgEl.dataset.base;
+      const step = Number(imgEl.dataset.step || "0");
+      const exts = ["jpeg", "png", "webp"];
+      if (step < exts.length) {
+        imgEl.dataset.step = String(step + 1);
+        imgEl.src = `${base}.${exts[step]}`;
+        return;
+      }
+      const wrapper = imgEl.parentElement;
+      const fallback = wrapper.querySelector(".photo-fallback");
+      imgEl.classList.add("hidden");
+      wrapper.classList.remove("h-40");
+      wrapper.classList.add("h-28");
+      if (fallback) fallback.classList.remove("hidden");
+    }
 
     function drawAmbientBackdrop() {
       const canvas = document.getElementById("ambient-pirin-canvas");
@@ -352,25 +381,47 @@
       grid.innerHTML = list.map(item => {
         const isSaved = savedSet.has(item.id);
         const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.maps)}`;
+        const visual = categoryVisuals[item.cat] || { icon: "📍", gradient: "from-[#E5C9A8] to-[#F3E1C8]" };
+
         const actionBtn = item.phone
           ? `<a href="tel:${item.phone}" class="w-full inline-flex items-center justify-center py-2.5 px-3 rounded-xl bg-[#264E3D] hover:bg-[#1E3F31] text-white text-xs font-semibold transition">Call +359 895 008 505</a>`
           : `<a href="${mapLink}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center py-2.5 px-3 rounded-xl bg-[#F5E9DC]/90 hover:bg-[#264E3D] text-[#1F2924] hover:text-white text-xs font-semibold transition">Open in Google Maps ↗</a>`;
 
         return `
-          <article class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition">
+          <article class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between transition">
             <div>
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-[#264E3D] bg-[#264E3D]/10 px-2.5 py-0.5 rounded-lg">
+              <div class="relative h-40 w-full overflow-hidden bg-gradient-to-br ${visual.gradient}">
+                <img
+                  src="${item.photoBase}.jpg"
+                  data-base="${item.photoBase}"
+                  data-step="0"
+                  alt="${item.name}"
+                  loading="lazy"
+                  onerror="handlePhotoFallback(this)"
+                  class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                >
+                <div class="photo-fallback hidden w-full h-full flex items-center justify-between px-4">
+                  <div class="flex items-center gap-2.5">
+                    <span class="w-10 h-10 rounded-xl bg-white/55 backdrop-blur-xs flex items-center justify-center text-lg shadow-2xs">${visual.icon}</span>
+                    <div>
+                      <span class="block text-[10px] font-bold uppercase tracking-wider text-[#1F2924]/80">${item.label}</span>
+                      <span class="block text-[11px] font-medium text-[#1F2924]/65">Bansko • Pirin</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="absolute bottom-2.5 left-2.5 text-[10px] font-bold uppercase tracking-wider text-[#1F2924] bg-white/88 backdrop-blur-md px-2.5 py-0.5 rounded-lg shadow-2xs">
                   ${item.label}
                 </span>
-                <button type="button" data-id="${item.id}" class="bookmark-btn px-2 py-0.5 rounded-lg text-xs font-semibold border transition ${isSaved ? "bg-[#D46F48] text-white border-[#D46F48]" : "bg-white/70 text-[#5C6660] border-[#DFCBB6] hover:text-[#1F2924]"}">
+                <button type="button" data-id="${item.id}" class="bookmark-btn absolute top-2.5 right-2.5 w-8 h-8 rounded-xl text-xs font-bold border shadow-xs backdrop-blur-md transition flex items-center justify-center ${isSaved ? "bg-[#D46F48] text-white border-[#D46F48]" : "bg-white/85 text-[#1F2924] border-white/60 hover:bg-white"}">
                   ${isSaved ? "★" : "☆"}
                 </button>
               </div>
-              <h3 class="text-sm sm:text-base font-bold text-[#1F2924] mt-2.5 leading-snug">${item.name}</h3>
-              <p class="text-xs text-[#5C6660] mt-1.5 leading-relaxed">${item.note}</p>
+              <div class="p-4 sm:p-5 pb-2">
+                <h3 class="text-sm sm:text-base font-bold text-[#1F2924] leading-snug">${item.name}</h3>
+                <p class="text-xs text-[#5C6660] mt-1.5 leading-relaxed">${item.note}</p>
+              </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-[#E5D6C5]/70">
+            <div class="px-4 sm:px-5 pb-4 pt-3 mt-1">
               ${actionBtn}
             </div>
           </article>
