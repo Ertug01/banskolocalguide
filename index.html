@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Bansko Local Guide — Minimalist Field Companion</title>
+  <link rel="icon" type="image/png" href="Logo_Zarika_large.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -24,6 +25,9 @@
       background: linear-gradient(165deg, #FBF3EA 0%, #F7EBDD 52%, #F3E6D8 100%);
       color: var(--ink-primary);
       min-height: 100vh;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     }
     .no-scrollbar::-webkit-scrollbar {
       display: none;
@@ -67,8 +71,8 @@
 </head>
 <body class="antialiased selection:bg-[#D46F48] selection:text-white overflow-x-hidden relative">
   <!-- Chosen Palette: Zarika Dawn & Bansko Pirin Pine (Warm sunlit sand-cream #FBF3EA base, blurred Zarika sunrise coral #D46F48 and golden amber #E8A455 ambient glows, paired with Pirin alpine forest green #264E3D and crisp dark pine typography #1F2924) -->
-  <!-- Application Structure Plan: Minimalist, responsive control panel built for both local desktop previewing and GitHub Pages hosting. Each of the 41 verified Bansko locations is pre-mapped to a dedicated file inside a relative `photos/` folder with automatic image extension fallback (.jpg, .jpeg, .png, .webp) and a clean Zarika-themed header fallback if a photo has not been added yet, ensuring zero broken images or external API dependencies. -->
-  <!-- Visualization & Content Choices: 1) Interactive Places Directory with Local `photos/` Headers (HTML/Tailwind + Vanilla JS) -> Organize, Visualize & Navigate -> Displays authentic user-curated photos from `photos/` alongside verbatim guide notes and 1-tap Google Maps links. 2) Category Breakdown Bar Chart (Chart.js Canvas) -> Inform -> Summarizes counts across all 9 categories. 3) Open-Air Thermal SPA Distance Chart (Chart.js Canvas) -> Compare -> Compares distances from Bansko to Banya and Dobrinishte thermal pools. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+  <!-- Application Structure Plan: Minimalist, responsive control panel built for both local desktop previewing and GitHub Pages hosting. Features the official Zarika Association logo (`Logo_Zarika_large.png`) in the sticky header with automatic path fallback, all 41 verified Bansko locations mapped to local `photos/` assets, 1-tap Google Maps and taxi utilities, and a subtle terminal-style creator signature in the footer. -->
+  <!-- Visualization & Content Choices: 1) Branded Header with Local Logo (`Logo_Zarika_large.png`) -> Identity -> Renders the Zarika Association mark with smart root/photos fallback. 2) Interactive Places Directory with Local `photos/` Headers (HTML/Tailwind + Vanilla JS) -> Organize, Visualize & Navigate -> Displays authentic photos alongside verbatim guide notes and 1-tap Google Maps links. 3) Category Breakdown Bar Chart (Chart.js Canvas) -> Inform -> Summarizes counts across all 9 categories. 4) Open-Air Thermal SPA Distance Chart (Chart.js Canvas) -> Compare -> Compares distances from Bansko to Banya and Dobrinishte thermal pools. CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
   <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 
   <div aria-hidden="true" class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
@@ -79,9 +83,18 @@
   </div>
 
   <header class="sticky top-0 z-40 bg-[#FBF3EA]/85 backdrop-blur-md border-b border-[#E5D6C5]/80">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D46F48] to-[#E8A455] text-white flex items-center justify-center text-sm shadow-xs shrink-0">☀</span>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="shrink-0 flex items-center">
+          <img
+            src="Logo_Zarika_large.png"
+            data-step="0"
+            onerror="handleLogoFallback(this)"
+            alt="Zarika Association"
+            class="h-9 sm:h-10 w-auto max-w-[125px] object-contain rounded-lg"
+          >
+          <span id="brand-logo-fallback" class="hidden w-9 h-9 rounded-xl bg-gradient-to-br from-[#D46F48] to-[#E8A455] text-white items-center justify-center text-sm shadow-xs">☀</span>
+        </div>
         <div class="truncate">
           <h1 class="text-sm sm:text-base font-bold tracking-tight text-[#1F2924] truncate">Bansko Local Guide</h1>
           <p class="text-[11px] text-[#5C6660] truncate">Pirin Mountains • Curated Places &amp; Essentials</p>
@@ -214,8 +227,14 @@
 
   <footer class="border-t border-[#E5D6C5]/80 mt-10 py-6">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#5C6660]">
-      <span><strong>Bansko Local Guide</strong> • Zarika &amp; Pirin Dawn Edition</span>
-      <span>Mobile &amp; Desktop Ready • Hosted on GitHub Pages</span>
+      <span><strong>Bansko Local Guide</strong> • Zarika Association</span>
+      <div class="flex items-center gap-2.5">
+        <span>Mobile &amp; Desktop Ready</span>
+        <span class="opacity-35">•</span>
+        <button type="button" id="dev-sig-btn" class="font-mono-code text-[11px] text-[#5C6660]/70 hover:text-[#264E3D] tracking-tight transition cursor-pointer">
+          &gt;_ ertug
+        </button>
+      </div>
     </div>
   </footer>
 
@@ -287,6 +306,21 @@
     let activeCat = "all";
     let savedOnly = false;
     const savedSet = new Set();
+
+    function handleLogoFallback(imgEl) {
+      const step = Number(imgEl.dataset.step || "0");
+      if (step === 0) {
+        imgEl.dataset.step = "1";
+        imgEl.src = "photos/Logo_Zarika_large.png";
+        return;
+      }
+      imgEl.classList.add("hidden");
+      const fallback = document.getElementById("brand-logo-fallback");
+      if (fallback) {
+        fallback.classList.remove("hidden");
+        fallback.classList.add("flex");
+      }
+    }
 
     function handlePhotoFallback(imgEl) {
       const base = imgEl.dataset.base;
@@ -492,6 +526,18 @@
       });
     });
 
+    const devSigBtn = document.getElementById("dev-sig-btn");
+    let sigTimer = null;
+    devSigBtn.addEventListener("click", function () {
+      clearTimeout(sigTimer);
+      this.textContent = "// crafted_by: ertug";
+      this.classList.add("text-[#264E3D]");
+      sigTimer = setTimeout(() => {
+        this.textContent = ">_ ertug";
+        this.classList.remove("text-[#264E3D]");
+      }, 2800);
+    });
+
     function wrapLabel(label, max = 16) {
       if (label.length <= max) return label;
       const words = label.split(" ");
@@ -565,6 +611,12 @@
         }
       }
     });
+
+    console.log(
+      "%c >_ Bansko Local Guide %c // crafted_by: ertug ",
+      "background:#264E3D;color:#FBF3EA;padding:3px 6px;border-radius:4px 0 0 4px;font-weight:bold;",
+      "background:#D46F48;color:#FFFFFF;padding:3px 6px;border-radius:0 4px 4px 0;"
+    );
 
     window.addEventListener("resize", drawAmbientBackdrop);
     drawAmbientBackdrop();
